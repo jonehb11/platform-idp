@@ -7,6 +7,8 @@ on:
 
 jobs:
   ci:
+    outputs:
+      commit_id: ${{ env.COMMIT_ID }}
     runs-on: ubuntu-latest
     steps: 
       
@@ -32,13 +34,27 @@ jobs:
     needs: ci
     runs-on: self-hosted
     steps:
+      - uses: actions/checkout@v3
 
+
+      - name: modify values file
+        shell: bash
+        run: |
+           echo  ${{needs.ci.outputs.commit_id}}
+           pip install yq
+           yq -Yi '.image.tag = "${{needs.ci.outputs.commit_id}}"' /charts/argocd/python-app/values.yaml
       - name: Install argocd
         shell: bash
         run: |
            curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64          
            chmod +x argocd-linux-amd64         
            sudo mv ./argocd-linux-amd64 /usr/local/bin/argocd
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'updates rto values .yaml'
+          
+
       - name: Argocd app sync
         shell: bash
         run: | 
