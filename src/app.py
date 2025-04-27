@@ -13,7 +13,7 @@ app = Flask(__name__)
 # ‘/’ URL is bound with hello_world() function.
 def hello_world():
     return jsonify({
-        'message': 'hello-world trigger test 9'
+        'message': 'hello-world trigger test 10'
     })
 
 @app.route('/api/v1/healthz')
